@@ -40,7 +40,7 @@ def create_restaurant():
         rest_body = json.loads(request.data)
         restaurant = Restaurant(
             name = rest_body.get('name'),
-            menu = rest_body.get('menu')
+            #menu = rest_body.get('menu')
             )
         db.session.add(restaurant)
         db.session.commit()
