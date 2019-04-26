@@ -14,7 +14,7 @@ db.init_app(app)
 with app.app_context():
     db.create_all()
 
-#Test
+#Test.
 @app.route('/api/snax/')
 def snax():
     return json.dumps("snax")

@@ -5,7 +5,7 @@ db = SQLAlchemy()
 #Many to Many Cart to food
 #Many to One Food to Restaurant
 #One to One Cart to User
-#One to One Cart to Order --------Only want to add after complete?
+#One to One Cart to Order ------Only want to add after complete?
 
 association_table = db.Table('association', db.Model.metadata,
     db.Column('cart_id', db.Integer, db.ForeignKey('cart.id')),
