@@ -1,6 +1,6 @@
 import json
 from flask import Flask, request
-from db import db, Restaurant, Menu, User
+from db import db, Restaurant, User, Cart, Food, Order
 
 app = Flask(__name__)
 
@@ -58,23 +58,24 @@ def delete_restaurant(rest_id):
 
 #Food
 @app.route('/api/snax/restaurant/<int:rest_id>/food/')
-def getFood(food_id):
-    food = Food.query.filter_by(id = rest_id).first()
-    if food is not None:
-        get = {'success': True, 'data': [item.serialize() for item in food]}
+def getFood(rest_id):
+    restaurant = Restaurant.query.filter_by(id = rest_id).first()
+    if restaurant is not None:
+        get = {'success': True, 'data': [food.serialize() for food in restaurant.food]}
         return json.dumps(get), 200
     else:
         return json.dumps({'success': False, 'error': 'Restaurant not found!'}), 404
 
-@app.route('/api/snax/restaurant/<int:rest_id>/menus/', methods = ['POST'])
+@app.route('/api/snax/restaurant/<int:rest_id>/food/', methods = ['POST'])
 def create_food(rest_id):
     restaurant = Restaurant.query.filter_by(id = rest_id).first()
     if restaurant is not None:
         body = json.loads(request.data)
         food = Food(
-            name = body.get('name')
+            name = body.get('name'),
+            restaurant_id = rest_id
         )
-        restaurant.menu.append(food)
+        restaurant.food.append(food)
         db.session.add(food)
         db.session.commit()
         return json.dumps({'success': True, 'data': food.serialize()}), 201

@@ -37,6 +37,7 @@ class Food(db.Model):
 
     def __init__(self, **kwargs):
         self.name = kwargs.get('name')
+        self.restaurant_id =kwargs.get('restaurant_id')
 
     def serialize(self):
         return{
@@ -49,8 +50,8 @@ class Cart(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String, nullable=False)
     food = db.relationship("Food", secondary = association_table, back_populates = "cart")
-    user_id = db.column(db.Integer, ForeignKey('user.id'), nullable = False)
-    user = relationship("User", back_populates = 'cart')
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable = False)
+    user = db.relationship("User", back_populates = 'cart')
 
     def __init__(self, **kwargs):
         self.name = kwargs.get('name')
@@ -92,4 +93,3 @@ class Order(db.Model):
         'id': self.id,
         'matched': matched.id
         }
-        
