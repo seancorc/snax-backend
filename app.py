@@ -133,5 +133,15 @@ def delete_order(order_id):
         return json.dumps({'success': True, 'data': order.serialize()}), 201
     return json.dumps({'success': False, 'error': 'Order not found!'}), 404
 
+#User Actions
+@app.route('/api/snax/order/<int:user_id>', methods = ['POST'])
+def create_order(user_id):
+    user = User.query.filter_by(id = user_id).first()
+    if user is not None:
+        user.order = user.cart
+        db.session.commit()
+        return json.dumps({'success': True, 'data': order.serialize()}),200
+    return json.dumps({'success': False, 'error': 'User not found!'}), 404
+
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=5000, debug=True)

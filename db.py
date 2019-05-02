@@ -51,10 +51,11 @@ class Cart(db.Model):
     name = db.Column(db.String, nullable=False)
     food = db.relationship("Food", secondary = association_table, back_populates = "cart")
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable = False)
-    user = db.relationship("User", back_populates = 'cart')
 
     def __init__(self, **kwargs):
         self.name = kwargs.get('name')
+        self.food = None
+        self.user_id = kwargs.get('user_id')
 
     def serialize(self):
         return{
@@ -69,9 +70,12 @@ class User(db.Model):
     id = db.Column(db.Integer, primary_key = True)
     name = db.Column(db.String, nullable = False)
     cart = db.relationship("Cart", uselist = False, back_populates = 'user')
+    order = db.relationship("Order", uselist = False, back_populates = 'user')
 
     def __init__(self, **kwargs):
         self.name = kwargs.get('name')
+        self.cart = None
+        self.order = None
 
     def serialize(self):
         return{
@@ -83,10 +87,15 @@ class User(db.Model):
 class Order(db.Model):
     __tablename__ = 'order'
     id = db.Column(db.Integer, primary_key = True)
+    orderedUser = db.relationship("User", back_populates = 'order')
+    deliverUser = db.relationship("User", back_populates = 'order')
     matched = db.Column(db.Boolean, nullable = False)
 
     def __init__(self, **kwargs):
         self.matched = kwargs.get('matched', False)
+        self.orderedUser = None
+        self.deliverUser = None
+        self.matched = False
 
     def serialize(self):
         return{
