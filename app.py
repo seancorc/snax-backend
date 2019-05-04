@@ -40,7 +40,6 @@ def create_restaurant():
         rest_body = json.loads(request.data)
         restaurant = Restaurant(
             name = rest_body.get('name'),
-            #menu = rest_body.get('menu')
             )
         db.session.add(restaurant)
         db.session.commit()
@@ -73,7 +72,9 @@ def create_food(rest_id):
         body = json.loads(request.data)
         food = Food(
             name = body.get('name'),
-            restaurant_id = rest_id
+            restaurant_id = rest_id,
+            price = body.get('price'),
+            description = body.get('description')
         )
         restaurant.food.append(food)
         db.session.add(food)
@@ -134,7 +135,7 @@ def delete_order(order_id):
     return json.dumps({'success': False, 'error': 'Order not found!'}), 404
 
 #User Actions
-@app.route('/api/snax/order/<int:user_id>', methods = ['POST'])
+@app.route('/api/snax/order/<int:user_id>/', methods = ['POST'])
 def create_order(user_id):
     user = User.query.filter_by(id = user_id).first()
     if user is not None:
