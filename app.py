@@ -98,9 +98,9 @@ def getUsers():
     return json.dumps(get), 200
 
 
-@app.route('/api/snax/user/<int:user_id>/')
-def getSpecificUser(user_id):
-    user = User.query.filter_by(id=user_id).first()
+@app.route('/api/snax/user/<string:user_email>/')
+def getSpecificUser(user_email):
+    user = User.query.filter_by(email=user_email).first()
     if user is not None:
         get = {'success': True, 'data': user.serialize()}
         return json.dumps(get), 200
