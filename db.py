@@ -68,38 +68,38 @@ class Food(db.Model):
 class User(db.Model):
     __tablename__ = 'user'
     id = db.Column(db.Integer, primary_key=True)
-    name = db.Column(db.String, nullable=False)
+    firstName = db.Column(db.String, nullable=False)
+    lastName = db.Column(db.String, nullable=False)
+    email = db.Column(db.String, nullable=False)
     orderer = db.Column(db.Boolean, nullable=False)
     deliverer = db.Column(db.Boolean, nullable=False)
     orders = db.relationship(
         "Order")
 
     def __init__(self, **kwargs):
-        self.name = kwargs.get('name')
+        self.firstName = kwargs.get('firstName')
+        self.lastName = kwargs.get('lastName')
+        self.email = kwargs.get('email')
         self.orders = []
         self.orderer = True
         self.deliverer = False
 
     def serialize(self):
-        if self.orders is not None:
-            return{
-                'id': self.id,
-                'name': self.name,
-                'orders': [order.subSerialize() for order in self.orders]
-            }
-        else:
-            return{
-                'id': self.id,
-                'name': self.name,
-                'orders': []
-            }
+        return{
+            'id': self.id,
+            'firstName': self.firstName,
+            'lastName': self.lastName,
+            'email': self.email,
+            'orders': [order.subSerialize() for order in self.orders]
+        }
 
     def subSerialize(self):
-        if self.orders is not None:
-            return{
-                'id': self.id,
-                'name': self.name,
-            }
+        return{
+            'id': self.id,
+            'firstName': self.firstName,
+            'lastName': self.lastName,
+            'email': self.email
+        }
 
 
 class Order(db.Model):

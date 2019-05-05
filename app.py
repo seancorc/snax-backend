@@ -112,8 +112,9 @@ def getSpecificUser(user_id):
 def create_user():
     user_body = json.loads(request.data)
     user = User(
-        name=user_body.get('name')
-
+        firstName=user_body.get('firstName'),
+        lastName=user_body.get('lastName'),
+        email=user_body.get('email')
     )
     db.session.add(user)
     db.session.commit()
