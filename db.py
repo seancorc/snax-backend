@@ -2,13 +2,12 @@ from flask_sqlalchemy import SQLAlchemy
 
 db = SQLAlchemy()
 
-#Many to Many Cart to food
 #Many to One Food to Restaurant
-#One to One Cart to User
-#One to One Cart to Order ------Only want to add after complete?
+#One to One Order to User
+#Many to One Food to Order
 
 association_table = db.Table('association', db.Model.metadata,
-    db.Column('cart_id', db.Integer, db.ForeignKey('cart.id')),
+    db.Column('order_id', db.Integer, db.ForeignKey('order.id')),
     db.Column('food_id', db.Integer, db.ForeignKey('food.id')))
 
 class Restaurant(db.Model):
@@ -20,6 +19,8 @@ class Restaurant(db.Model):
 
     def __init__(self, **kwargs):
         self.name = kwargs.get('name')
+        self.food = []
+
 
     def serialize(self):
         return {
@@ -32,63 +33,44 @@ class Food(db.Model):
     __tablename__ = 'food'
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String, nullable=False)
-    cart = db.relationship("Cart", secondary = association_table, back_populates = "food")
     restaurant_id = db.Column(db.Integer, db.ForeignKey('restaurant.id'), nullable = False)
+    orders = db.relationship("Order", secondary= association_table, back_populates = 'food')
     price = db.Column(db.Float, nullable = False)
     description = db.Column(db.String)
+    comments = db.Column(db.String)
 
     def __init__(self, **kwargs):
         self.name = kwargs.get('name')
         self.restaurant_id =kwargs.get('restaurant_id')
         self.price = kwargs.get('price')
-        self.description = kwargs.get('description')
+        self.description = kwargs.get('description','')
+        self.comments = kwargs.get('comments','')
+        self.orders = []
 
     def serialize(self):
         return{
         'id': self.id,
         'name': self.name,
         'price': self.price,
-        'description': self.description
-        }
-
-class Cart(db.Model):
-    __tablename__ = 'cart'
-    id = db.Column(db.Integer, primary_key=True)
-    name = db.Column(db.String, nullable=False)
-    food = db.relationship("Food", secondary = association_table, back_populates = "cart")
-    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable = False)
-
-    def __init__(self, **kwargs):
-        self.name = kwargs.get('name')
-        self.food = None
-        self.user_id = kwargs.get('user_id')
-
-
-    def serialize(self):
-        return{
-        'id': self.id,
-        'name': self.name,
-        'food': self.food,
-        'user': self.user
+        'description': self.description,
+        'comments': self.comments
         }
 
 class User(db.Model):
     __tablename__ = 'user'
     id = db.Column(db.Integer, primary_key = True)
     name = db.Column(db.String, nullable = False)
-    cart = db.relationship("Cart", uselist = False, back_populates = 'user')
     order = db.relationship("Order", uselist = False, back_populates = 'user')
 
     def __init__(self, **kwargs):
         self.name = kwargs.get('name')
-        self.cart = None
         self.order = None
 
     def serialize(self):
         return{
         'id': self.id,
         'name': self.name,
-        'cart': [item.serialize() for item in self.cart]
+        'order': [item.serialize() for item in self.order]
         }
 
 class Order(db.Model):
@@ -97,16 +79,27 @@ class Order(db.Model):
     orderedUser = db.relationship("User", back_populates = 'order')
     deliverUser = db.relationship("User", back_populates = 'order')
     matched = db.Column(db.Boolean, nullable = False)
+    active = db.Column(db.Boolean, nullable = False)
+    food = db.relationship("Food", secondary= association_table, back_populates = 'order')
 
 
     def __init__(self, **kwargs):
-        self.matched = kwargs.get('matched', False)
-        self.orderedUser = None
+        self.matched = False
+        self.orderedUser = kwargs.get('orderedUser')
         self.deliverUser = None
+        self.active = False
+        self.food = []
 
     def serialize(self):
+        if self.deliverUser is None:
+            delivering = None
+        else:
+            delivering = self.deliverUser.serialize()
         return{
         'id': self.id,
         'matched': self.matched,
-        'orderer': self.orderedUser.serialize()
+        'orderer': self.orderedUser.serialize(),
+        'placed': self.active,
+        'food': [food.serialize() for food in self.food],
+        'deliverer': delivering
         }

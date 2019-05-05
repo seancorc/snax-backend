@@ -74,7 +74,8 @@ def create_food(rest_id):
             name = body.get('name'),
             restaurant_id = rest_id,
             price = body.get('price'),
-            description = body.get('description')
+            description = body.get('description'),
+            comments = body.get('comments')
         )
         restaurant.food.append(food)
         db.session.add(food)
@@ -139,10 +140,36 @@ def delete_order(order_id):
 def create_order(user_id):
     user = User.query.filter_by(id = user_id).first()
     if user is not None:
-        user.order = user.cart
+        neworder = Order(orderedUser = user_id)
+        db.session.add(new)
         db.session.commit()
-        return json.dumps({'success': True, 'data': order.serialize()}),200
+        return json.dumps({'success': True, 'data': neworder.serialize()}),200
     return json.dumps({'success': False, 'error': 'User not found!'}), 404
+
+@app.route('/api/snax/placeorder/<int:user_id>/', methods = ['POST'])
+def place_order(user_id):
+    user = User.query.filter_by(id = user_id).first()
+    if user is not None:
+        if user.order is not None:
+            user.order.active = True
+            db.session.commit()
+            return json.dumps({'success': True, 'data': user.order.serialize()}), 201
+        return json.dumps({'success': False, 'error': 'Order not found!'}), 404
+    return json.dumps({'success': False, 'error': 'User not found!'}), 404
+
+@app.route('/api/snax/fulfillorder/<int:order_id>/<int:user_id>/', methods = ['POST'])
+def fulfillorder(order_id, user_id):
+    user = User.query.filter_by(id = user_id.first()
+    if user is not None:
+        order = Order.query.filter_by(id = order_id).first()
+        if order is not None:
+            order.deliverUser = user
+            order.matched = True
+            db.session.commit()
+            return json.dumps({'success': True, 'data': order.serialize()}), 201
+        return json.dumps({'success': False, 'error': 'Order not found!'}), 404
+    return json.dumps({'success': False, 'error': 'User not found!'}), 404
+
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=5000, debug=True)
