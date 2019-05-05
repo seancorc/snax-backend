@@ -10,6 +10,10 @@ association_table = db.Table('association', db.Model.metadata,
     db.Column('order_id', db.Integer, db.ForeignKey('order.id')),
     db.Column('food_id', db.Integer, db.ForeignKey('food.id')))
 
+userorder_tabel = db.Table('association', db.Model.metadata,
+    db.Column('order_id', db.Integer, db.ForeignKey('order.id')),
+    db.Column('user_id', db.Integer, db.ForeignKey('user.id')))
+
 class Restaurant(db.Model):
     __tablename__ = 'restaurant'
     id = db.Column(db.Integer, primary_key=True)
@@ -60,31 +64,31 @@ class User(db.Model):
     __tablename__ = 'user'
     id = db.Column(db.Integer, primary_key = True)
     name = db.Column(db.String, nullable = False)
-    order = db.relationship("Order", back_populates = 'user')
+    orders = db.relationship("Order", secondary= association_table, back_populates = 'user')
 
     def __init__(self, **kwargs):
         self.name = kwargs.get('name')
-        self.order = None
+        self.orders = []
 
     def serialize(self):
         if self.order is not None:
             return{
             'id': self.id,
             'name': self.name,
-            'order': [item.serialize() for item in self.order]
+            'orders': self.orders.length()
             }
         else:
             return{
             'id': self.id,
             'name': self.name,
-            'order': []
+            'orders': 0
             }
 
 class Order(db.Model):
     __tablename__ = 'order'
     id = db.Column(db.Integer, primary_key = True)
-    orderedid = db.Column(db.Integer, db.ForeignKey('user.id'))
-    deliverid = db.Column(db.Integer, db.ForeignKey('user.id'))
+    orderedid = db.relationship("User", secondary= association_table, back_populates = 'order')
+    deliverid = db.relationship("User", secondary= association_table, back_populates = 'order')
     matched = db.Column(db.Boolean, nullable = False)
     active = db.Column(db.Boolean, nullable = False)
     food = db.relationship("Food", secondary= association_table, back_populates = 'order')

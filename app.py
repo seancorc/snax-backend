@@ -141,7 +141,8 @@ def create_order(user_id):
     user = User.query.filter_by(id = user_id).first()
     if user is not None:
         neworder = Order(ordered_id = user_id)
-        db.session.add(new)
+        user.orders = user.orders + [neworder]
+        db.session.add(neworder)
         db.session.commit()
         return json.dumps({'success': True, 'data': neworder.serialize()}),200
     return json.dumps({'success': False, 'error': 'User not found!'}), 404
@@ -169,6 +170,16 @@ def fulfillorder(order_id, user_id):
             return json.dumps({'success': True, 'data': order.serialize()}), 201
         return json.dumps({'success': False, 'error': 'Order not found!'}), 404
     return json.dumps({'success': False, 'error': 'User not found!'}), 404
+
+@app.route('/api/snax/orders/<int:user_id>/')
+def getUserOrders(user_id):
+    user = User.query.filter_by(id = user_id).first()
+    if user is not None:
+        orders = Order.query.filter_by(orderedid = user_id)
+        serialized = [order.serialize() for order in orders]
+        return json.dumps({'success': True, 'data': serialized}), 201
+    return json.dumps({'success': False, 'error': 'User not found!'}), 404
+
 
 
 if __name__ == '__main__':
