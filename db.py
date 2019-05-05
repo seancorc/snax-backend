@@ -60,24 +60,31 @@ class User(db.Model):
     __tablename__ = 'user'
     id = db.Column(db.Integer, primary_key = True)
     name = db.Column(db.String, nullable = False)
-    order = db.relationship("Order", uselist = False, back_populates = 'user')
+    order = db.relationship("Order", back_populates = 'user')
 
     def __init__(self, **kwargs):
         self.name = kwargs.get('name')
         self.order = None
 
     def serialize(self):
-        return{
-        'id': self.id,
-        'name': self.name,
-        'order': [item.serialize() for item in self.order]
-        }
+        if self.order is not None:
+            return{
+            'id': self.id,
+            'name': self.name,
+            'order': [item.serialize() for item in self.order]
+            }
+        else:
+            return{
+            'id': self.id,
+            'name': self.name,
+            'order': []
+            }
 
 class Order(db.Model):
     __tablename__ = 'order'
     id = db.Column(db.Integer, primary_key = True)
-    orderedUser = db.relationship("User", back_populates = 'order')
-    deliverUser = db.relationship("User", back_populates = 'order')
+    orderedid = db.Column(db.Integer, db.ForeignKey('user.id'))
+    deliverid = db.Column(db.Integer, db.ForeignKey('user.id'))
     matched = db.Column(db.Boolean, nullable = False)
     active = db.Column(db.Boolean, nullable = False)
     food = db.relationship("Food", secondary= association_table, back_populates = 'order')
@@ -85,8 +92,8 @@ class Order(db.Model):
 
     def __init__(self, **kwargs):
         self.matched = False
-        self.orderedUser = kwargs.get('orderedUser')
-        self.deliverUser = None
+        self.orderedid = kwargs.get('ordered_id')
+        self.deliverid = None
         self.active = False
         self.food = []
 
@@ -94,11 +101,13 @@ class Order(db.Model):
         if self.deliverUser is None:
             delivering = None
         else:
-            delivering = self.deliverUser.serialize()
+            deliveruser = User.query.filter_by(id = self.deliverid)
+            delivering = deliverser.serialize()
+        ordereduser = User.query.filter_by(id = self.orderedid)
         return{
         'id': self.id,
         'matched': self.matched,
-        'orderer': self.orderedUser.serialize(),
+        'orderer': ordereduser.serialize(),
         'placed': self.active,
         'food': [food.serialize() for food in self.food],
         'deliverer': delivering

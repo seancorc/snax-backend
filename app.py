@@ -1,6 +1,6 @@
 import json
 from flask import Flask, request
-from db import db, Restaurant, User, Cart, Food, Order
+from db import db, Restaurant, User, Food, Order
 
 app = Flask(__name__)
 
@@ -72,7 +72,7 @@ def create_food(restaurant_name):
         body = json.loads(request.data)
         food = Food(
             name = body.get('name'),
-            restaurant_id = restaurant.id
+            restaurant_id = restaurant.id,
             price = body.get('price'),
             description = body.get('description'),
             comments = body.get('comments')
@@ -140,7 +140,7 @@ def delete_order(order_id):
 def create_order(user_id):
     user = User.query.filter_by(id = user_id).first()
     if user is not None:
-        neworder = Order(orderedUser = user_id)
+        neworder = Order(ordered_id = user_id)
         db.session.add(new)
         db.session.commit()
         return json.dumps({'success': True, 'data': neworder.serialize()}),200
@@ -159,7 +159,7 @@ def place_order(user_id):
 
 @app.route('/api/snax/fulfillorder/<int:order_id>/<int:user_id>/', methods = ['POST'])
 def fulfillorder(order_id, user_id):
-    user = User.query.filter_by(id = user_id.first()
+    user = User.query.filter_by(id = user_id).first()
     if user is not None:
         order = Order.query.filter_by(id = order_id).first()
         if order is not None:
