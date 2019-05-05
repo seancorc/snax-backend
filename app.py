@@ -26,9 +26,9 @@ def getRestaurants():
     get = {'success': True, 'data': [restaurant.serialize() for restaurant in restaurants]}
     return json.dumps(get), 200
 
-@app.route('/api/snax/restaurant/<int:rest_id>/')
-def getSpecificRestaurant(rest_id):
-    restaurant = Restaurant.query.filter_by(id = rest_id).first()
+@app.route('/api/snax/restaurant/<restaurant_name>/')
+def getSpecificRestaurant(restaurant_name):
+    restaurant = Restaurant.query.filter_by(name = restaurant_name).first()
     if restaurant is not None:
         get = {'success': True, 'data': restaurant.serialize()}
         return json.dumps(get), 200
@@ -45,9 +45,9 @@ def create_restaurant():
         db.session.commit()
         return json.dumps({'success': True, 'data': restaurant.serialize()}), 201
 
-@app.route('/api/snax/restaurant/<int:rest_id>/', methods = ['Delete'])
-def delete_restaurant(rest_id):
-    restaurant = Restaurant.query.filter_by(id = rest_id).first()
+@app.route('/api/snax/restaurant/<restaurant_name>/', methods = ['Delete'])
+def delete_restaurant(restaurant_name):
+    restaurant = Restaurant.query.filter_by(name = restaurant_name).first()
     if restaurant is not None:
         db.session.delete(restaurant)
         db.session.commit()
@@ -56,23 +56,23 @@ def delete_restaurant(rest_id):
 
 
 #Food
-@app.route('/api/snax/restaurant/<int:rest_id>/food/')
-def getFood(rest_id):
-    restaurant = Restaurant.query.filter_by(id = rest_id).first()
+@app.route('/api/snax/restaurant/<restaurant_name>/food/')
+def getFood(restaurant_name):
+    restaurant = Restaurant.query.filter_by(name = restaurant_name).first()
     if restaurant is not None:
         get = {'success': True, 'data': [food.serialize() for food in restaurant.food]}
         return json.dumps(get), 200
     else:
         return json.dumps({'success': False, 'error': 'Restaurant not found!'}), 404
 
-@app.route('/api/snax/restaurant/<int:rest_id>/food/', methods = ['POST'])
-def create_food(rest_id):
-    restaurant = Restaurant.query.filter_by(id = rest_id).first()
+@app.route('/api/snax/restaurant/<restaurant_name>/food/', methods = ['POST'])
+def create_food(restaurant_name):
+    restaurant = Restaurant.query.filter_by(name = restaurant_name).first()
     if restaurant is not None:
         body = json.loads(request.data)
         food = Food(
             name = body.get('name'),
-            restaurant_id = rest_id,
+            restaurant_id = restaurant.id
             price = body.get('price'),
             description = body.get('description'),
             comments = body.get('comments')
