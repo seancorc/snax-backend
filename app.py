@@ -89,6 +89,7 @@ def create_food(restaurant_name):
         return json.dumps({'success': True, 'data': food.serialize()}), 201
     return json.dumps({'success': False, 'error': 'Restaurant not found!'}), 404
 
+
 @app.route('/api/snax/restaurant/food/<int:food_id>/', methods=['Delete'])
 def delete_food(food_id):
     food = Food.query.filter_by(id=food_id).first()
@@ -142,8 +143,6 @@ def delete_user(user_email):
 @app.route('/api/snax/orders/')
 def getOrders():
     orders = Order.query.all()
-    print([order for order in orders])
-    print([order.food for order in orders])
     get = {'success': True, 'data': [order.serialize() for order in orders]}
     return json.dumps(get), 200
 
@@ -166,6 +165,19 @@ def toggle_user_mode(user_email):
         user.deliverer = not user.deliverer
         db.session.commit()
         return json.dumps({'success': True, 'data': user.serialize()})
+    return json.dumps({'success': False, 'error': 'User not found!'}), 404
+
+
+@app.route('/api/snax/user/recentOrder/<string:user_email>/')
+def get_recent_order(user_email):
+    user = User.query.filter_by(email=user_email).first()
+    if user is not None:
+        orders = user.orders
+        for order in orders:
+            if order.mostRecent:
+                if order.active:
+                    return json.dumps(None)
+                return json.dumps({'success': True, 'id': order.id}), 200
     return json.dumps({'success': False, 'error': 'User not found!'}), 404
 
 
@@ -205,7 +217,6 @@ def fulfillorder(order_id, user_email):
         if user.deliverer == False:
             return json.dumps({'success': False, 'error': 'User is in orderer mode! Orderers cannot fulfill orders'}), 404
         order = Order.query.filter_by(id=order_id).first()
-        print(order.serialize())
         if order is not None:
             order.fulfillID = user.id
             order.matched = True
