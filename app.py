@@ -89,6 +89,14 @@ def create_food(restaurant_name):
         return json.dumps({'success': True, 'data': food.serialize()}), 201
     return json.dumps({'success': False, 'error': 'Restaurant not found!'}), 404
 
+@app.route('/api/snax/restaurant/food/<int:food_id>/', methods=['Delete'])
+def delete_food(food_id):
+    food = Food.query.filter_by(id=food_id).first()
+    if food is not None:
+        db.session.delete(food)
+        db.session.commit()
+        return json.dumps({'success': True, 'data': food.serialize()}), 201
+    return json.dumps({'success': False, 'error': 'Task not found!'}), 404
 
 # Users
 @app.route('/api/snax/users/')
