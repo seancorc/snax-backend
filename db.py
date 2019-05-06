@@ -3,7 +3,7 @@ from flask_sqlalchemy import SQLAlchemy
 db = SQLAlchemy()
 
 # Many to One Food to Restaurant
-# One to One Order to User
+# Many to One Order to User
 # Many to One Food to Order
 
 association_table = db.Table('association', db.Model.metadata,
