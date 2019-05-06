@@ -118,12 +118,6 @@ class Order(db.Model):
         self.userID = kwargs.get('userID')
 
     def serialize(self):
-        print(self.userID)
-        print('fsafdsaf')
-        for f in self.food:
-            if f is not None:
-                print(f.serialize())
-
         user = User.query.filter_by(id=self.userID).first()
         user = user.subSerialize()
         otherOrderList = Order.query.filter_by(id=self.id)
