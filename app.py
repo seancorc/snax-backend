@@ -178,6 +178,7 @@ def get_recent_order(user_email):
                 if order.active:
                     return json.dumps(None)
                 return json.dumps({'success': True, 'order': order.serialize()}), 200
+        return json.dumps(None)
     return json.dumps({'success': False, 'error': 'User not found!'}), 404
 
 
