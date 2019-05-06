@@ -203,15 +203,12 @@ def addFoodToOrder(order_id):
     # userID = post_body.get('userID')
     restaurantName = post_body.get('restaurantName')
     FoodName = post_body.get('foodName')
-    print(FoodName)
     restaurant = Restaurant.query.filter_by(name=restaurantName).first()
     if restaurant is None:
         return json.dumps({'success': False, 'error': 'Restaurant not found!'}), 404
     food = Food.query.filter_by(
         name=FoodName, restaurant_id=restaurant.id).first()
     if order is None or food is None:
-        print(order)
-        print(food)
         return json.dumps({'success': False, 'error': 'Order not found!'}), 404
     order.food = order.food + [food]
     serialized = order.serialize()
