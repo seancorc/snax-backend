@@ -250,7 +250,7 @@ def addFoodToOrder(order_id):
     if order is None or food is None:
         return json.dumps({'success': False, 'error': 'Order not found!'}), 404
     order.food = order.food + [food]
-    serialized = order.serialize()
+    serialized = food.serialize()
     db.session.commit()
     return json.dumps({'success': True, 'data': serialized}), 201
 
